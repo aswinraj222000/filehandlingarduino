@@ -1,0 +1,106 @@
+#include<SD.h>
+#include<SPI.h>
+#include <FileIO.h>
+
+ /*we can also proved a string for path variablea */
+int f=1; /*loop() to exit after one*/
+int n=4; /* no of data rows to be entered*/
+int a=n;
+String datastring; /*converting data to be entered to a csv file*/
+File myfile;
+
+ struct covid_data 
+  {
+    String place;
+    int tested;
+    int positive;
+    int negative;
+    float tpr;
+   };
+   /* 4 sample data is considered in this case*/
+   covid_data data1 ={"mumbai",11520,2540,1234,23};   
+   covid_data data2 ={"Chennai",5000,1125,2654,17.3};
+   covid_data data3 ={"banglore",7000,2525,264,13};
+   covid_data data4 ={"Delhi",29872,13500,2654,29};
+    
+    
+    
+void setup() {
+
+  /*initially write the file-from the begining-initialize with headings*/
+  
+  if(!SD.begin()){
+      Serial.println("No SD card/ SD card mount failed");
+      return;
+      }
+  File myfile=SD.open("/covid.csv",FILE_WRITE);
+  datastring="LOCATION, NO. OF TESTS, POSITIVE RESULTS, NEGATIVE RESULTS, TEST POSITIVITY RATE\r\n";
+  myfile.print(datastring.c_str());
+  myfile.close();
+
+}
+
+
+
+
+void loop() {
+
+
+
+  while(f==1){
+  appendFile(data1);
+  appendFile(data2);
+  appendFile(data3);
+  appendFile(data4);/* 4 sample data is passed onto appendFile function*/
+  
+  if(n!=0){
+    Serial.println("Error: Cannot store into a CSV file");/* this messsage is to convey that some error occured in appendFile */
+  }
+
+  File myfile = SD.open("/covid.csv",FILE_READ);
+  myfile.seek(myfile.size());
+  lastline=myfile.readStringUntil('\n');
+  
+  int x=0; /*initialize x: x stops when x=a that is index of carriage return of the second last line */
+  int index=0;/*to take the index of the last character of the penultimate line*/
+  if(x=a){
+    index=fulldata.indexOf('\r\n',index+1);/*penultimate line's last character(\r\n) is stored */
+    x++;
+  }
+  
+  String lastline= fulldata.substring((index+1);/*lastline is taken*/
+  myfile.close();
+  
+  comma1=lastline.indexOf(',');
+  comma2=lastline.indexOf(',',comma1+1);
+  comma3=lastline.indexOf(',',comma2+1);
+  comma4=lastline.indexOf(',',comma3+1);
+  /*parsed with comma indices*/
+
+  Serial.println("Location:"+lastline.substring(0,comma1)+"\nTested:"+lastline.substring(comma1+1,comma2)+"\nPositive:"+lastline.substring(comma2+1,comma3)+"\nNegative:"+lastline.substring(comma3+1,comma4)+"\nTPR:"+lastline.substring(comma4+1);
+  /*printed the last line*/
+  String trimdata=fulldata.substring(index+1);/*trimmed data*/
+  
+  SD.remove("/covid.csv");
+  /*existing file is removed*/
+  File myfile=SD.open("/covid.csv",FILE_WRITE);
+  datastring="LOCATION, NO. OF TESTS, POSITIVE RESULTS, NEGATIVE RESULTS, TEST POSITIVITY RATE";
+  myfile.print(trimdata);
+  myfile.close();
+
+  /*trimmed data is stored*/
+  f=0;
+  /*void loop() is exited*/
+  
+  }
+
+}
+void appendFile(covid_data data){
+  datastring="";/*clear previous data */
+  datastring=String(data.place)+","+String(data.tested)+","+String(data.positive)+","+String(data.negative)+","+String(data.tpr)+"\r\n";/*convert data into string*/
+  File myfile = SD.open("/covid.csv",FILE_APPEND);
+  if(myfile.print(datastring)){
+    n--;/*if this i value must be zero after 4 set of data is stored in csv file*/
+  }
+  myfile.close();
+}
