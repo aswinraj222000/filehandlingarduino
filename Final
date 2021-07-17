@@ -1,0 +1,83 @@
+#include<SD.h>
+#include<SPI.h>
+#include <FileIO.h>
+
+ /*we can also proved a string for path variablea */
+int index;
+String datastring; /*converting data to be entered to a csv file*/
+String lastline;
+File myfile;
+
+ struct covid_data 
+  {
+    String place;
+    int tested;
+    int positive;
+    int negative;
+    float tpr;
+   };
+   /* 4 sample data is considered in this case*/
+   covid_data data1 ={"mumbai",11520,2540,1234,23};   
+   covid_data data2 ={"Chennai",5000,1125,2654,17.3};
+   covid_data data3 ={"banglore",7000,2525,264,13};
+   covid_data data4 ={"Delhi",29872,13500,2654,29};
+  
+void setup() {
+
+  /*initially write the file-from the begining-initialize with headings*/
+  
+  if(!SD.begin()){
+      Serial.println("No SD card/ SD card mount failed");
+      return;
+      }
+  File myfile=SD.open("/covid.csv",FILE_WRITE);
+  datastring="LOCATION, NO. OF TESTS, POSITIVE RESULTS, NEGATIVE RESULTS, TEST POSITIVITY RATE\r\n";
+  myfile.print(datastring.c_str());
+  myfile.close();
+
+}
+
+void loop() {
+  appendFile(data1);
+  appendFile(data2);
+  appendFile(data3);
+  appendFile(data4);/* 4 sample data is passed onto appendFile function*/
+  
+  if(n!=0){
+    Serial.println("Error: Cannot store into a CSV file");/* this messsage is to convey that some error occured in appendFile */
+  }
+
+  File myfile = SD.open("/covid.csv",FILE_READ);
+  myfile.seek(myfile.size());
+  lastline=myfile.readStringUntil('\n');
+  index=myfile.position();
+  myfile.close();
+
+  File myfile =SD.open("/covid.csv",FILE_WRITE);
+  myfile.seek(index);
+  while(myfile.position()!=EOF){
+    myfile.print("");
+  }
+  
+  
+  while((lastline.indexOf(","))!=-1){
+   String num = lastline.substring(0,lastline.indexOf(","));
+   lastline= lastline.substring(end+1);
+   Serial.println(num);
+  }
+  /*parsed with comma indices*/
+  /*printed the last line*/
+  exit(0);
+  /*void loop() is exited*/
+  
+  }
+
+}
+void appendFile(covid_data data){
+  datastring="";/*clear previous data */
+  datastring=String(data.place)+","+String(data.tested)+","+String(data.positive)+","+String(data.negative)+","+String(data.tpr)+"\r\n";/*convert data into string*/
+  File myfile = SD.open("/covid.csv",FILE_APPEND);
+  if(!myfile.print(datastring)){
+    Serial.println("Error while appending");
+  myfile.close();
+}
