@@ -55,7 +55,7 @@ void loop() {
 
   File myfile =SD.open("/covid.csv",FILE_WRITE);
   myfile.seek(index);
-  while(myfile.position()!=EOF){
+  while(myfile.position()!=myfile.size()){
     myfile.print("");
   }
   
