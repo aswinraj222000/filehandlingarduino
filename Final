@@ -43,9 +43,7 @@ void loop() {
   appendFile(data3);
   appendFile(data4);/* 4 sample data is passed onto appendFile function*/
   
-  if(n!=0){
-    Serial.println("Error: Cannot store into a CSV file");/* this messsage is to convey that some error occured in appendFile */
-  }
+ 
 
   File myfile = SD.open("/covid.csv",FILE_READ);
   myfile.seek(myfile.size());
