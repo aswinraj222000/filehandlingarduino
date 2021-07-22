@@ -1,0 +1,125 @@
+
+ 
+#include <SPI.h>        // Include SPI library (needed for the SD card)
+#include <SD.h>         // Include SD library
+ 
+File myfile;
+String datastring;
+int len;
+struct covid_data 
+  {
+    String place;
+    int tested;
+    int positive;
+    int negative;
+    float tpr;
+   };
+   /* 4 sample data is considered in this case*/
+   covid_data data1 ={"mumbai",11520,2540,1234,23};   
+   covid_data data2 ={"Chennai",5000,1125,2654,17.3};
+   covid_data data3 ={"banglore",7000,2525,264,13};
+   covid_data data4 ={"Delhi",29872,13500,2654,29};
+ 
+void setup() {
+  // Open serial communications and wait for port to open:
+  Serial.begin(9600);
+  
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+ 
+  Serial.print("Initializing SD card...");
+ 
+  if (!SD.begin()) {
+    Serial.println("initialization failed!");
+    while (1);
+  }
+  Serial.println("initialization done.");
+ 
+  // open the file. note that only one file can be open at a time,
+  // so you have to close this one before opening another.
+
+    
+  myfile = SD.open("covid.csv", FILE_WRITE);
+ 
+  // if the file opened okay, write to it:
+  if (myfile) {
+    Serial.print("Writing to covid.csv...");
+    datastring="LOCATION, NO. OF TESTS, POSITIVE RESULTS, NEGATIVE RESULTS, TEST POSITIVITY RATE\r\n";
+    myfile.println(datastring);
+    // close the file:
+    myfile.close();
+    Serial.println("done.");
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening covid.csv");
+  }
+
+
+  append(data1);
+  append(data2);
+  append(data3);
+  append(data4);
+
+   
+  String lastline="";
+  myfile = SD.open("covid.csv");
+  myfile.seek(myfile.size()-(len+2));
+  Serial.println("here comes the last line\r\n");
+  char ch;
+  while(myfile.available()){
+    ch=myfile.read();
+    if(ch=='\n'){
+      break;
+    }
+    else{
+      lastline+=ch;
+    }
+  }
+  myfile.close();
+
+  while((lastline.indexOf(","))!=-1){
+   String num = lastline.substring(0,lastline.indexOf(","));
+   lastline= lastline.substring(lastline.indexOf(",")+1);
+   Serial.println(num);
+  }
+  
+  myfile =SD.open("covid.csv",O_RDWR);
+  myfile.seek(myfile.size()-(len+3));
+  int i=0;
+  while(i<=len+2){
+    myfile.print(" ");
+    i++;
+    
+  }
+  
+  myfile.close();
+
+ 
+}
+
+
+ 
+void loop() { exit(0);
+  
+}
+void append(covid_data data){
+  String d;
+  myfile = SD.open("covid.csv", FILE_WRITE);
+ 
+  // if the file opened okay, write to it:
+  if (myfile) {
+    Serial.print("2) Writing to covid.csv...");
+    d=String(data.place)+","+String(data.tested)+","+String(data.positive)+","+String(data.negative)+","+String(data.tpr)+"\r\n";
+    len=d.length();
+    Serial.print("Length of:");
+    Serial.print(len);
+    myfile.println(d);
+    // close the file:
+    myfile.close();
+    Serial.println("done.");
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening covid.csv");
+  }
+}
