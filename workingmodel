@@ -112,8 +112,6 @@ void append(covid_data data){
     Serial.print("2) Writing to covid.csv...");
     d=String(data.place)+","+String(data.tested)+","+String(data.positive)+","+String(data.negative)+","+String(data.tpr)+"\r\n";
     len=d.length();
-    Serial.print("Length of:");
-    Serial.print(len);
     myfile.println(d);
     // close the file:
     myfile.close();
