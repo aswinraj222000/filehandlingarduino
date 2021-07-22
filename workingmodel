@@ -44,7 +44,6 @@ void setup() {
  
   // if the file opened okay, write to it:
   if (myfile) {
-    Serial.print("Writing to covid.csv...");
     datastring="LOCATION, NO. OF TESTS, POSITIVE RESULTS, NEGATIVE RESULTS, TEST POSITIVITY RATE\r\n";
     myfile.println(datastring);
     // close the file:
@@ -109,7 +108,6 @@ void append(covid_data data){
  
   // if the file opened okay, write to it:
   if (myfile) {
-    Serial.print("2) Writing to covid.csv...");
     d=String(data.place)+","+String(data.tested)+","+String(data.positive)+","+String(data.negative)+","+String(data.tpr)+"\r\n";
     len=d.length();
     myfile.println(d);
